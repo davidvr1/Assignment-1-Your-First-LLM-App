@@ -1,0 +1,29 @@
+=== Exercise 1: basic call ===
+Hello! I'm happy to help you today.
+
+=== 1b.1: system prompt (pirate persona) ===
+Ahoy there, matey! Welcome aboard me ship, and prepare yerself fer a grand adventure on the high seas!
+
+=== 1b.2: temperature=0 (twice) ===
+Hello! I'm happy to help you with whatever you need.
+Hello! I'm happy to help you with whatever you need.
+
+=== 1b.2: temperature=1 (twice) ===
+Hello! I'm happy to help you with whatever you need.
+Hello! I'm happy to meet you.
+
+=== 1b.3: raw JSON reply ===
+{
+  "answer": "Hello! I'm happy to assist you today.",
+  "confidence": 0.95
+}
+
+=== 1b.3a: parsed with json module ===
+answer: Hello! I'm happy to assist you today.
+confidence: 0.95
+
+=== 1b.3b: parsed with Pydantic ===
+answer="Hello! I'm happy to assist you today." confidence=0.95
+answer: Hello! I'm happy to assist you today.
+confidence: 0.95
+
