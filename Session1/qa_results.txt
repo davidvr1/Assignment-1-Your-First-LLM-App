@@ -1,0 +1,47 @@
+File: notes.txt
+Question: What is the main topic?
+Answer: The main topic is the company's travel policy for employee reimbursement of business travel expenses.
+
+Reference: "All employees are eligible for reimbursement of business travel expenses, including flights, trains, and hotel stays, provided the trip is approved in advance by a manager."
+
+File: notes.txt
+Question: insurance.md
+python file_qa.py insurance.md "Does my insurance cover bikes for kids?"
+I can't find that in the document.
+
+tricky
+File: insurance.md
+Question: Does my insurance cover sun glasses for kids?
+Answer: I can't find that in the document.
+
+Model: Qwen/Qwen2.5-0.5B-Instruct
+Prompt: Give me a recipe for gluten-free pizza.
+Answer: Creating a gluten-free pizza involves using alternative flours or doughs that can replace the wheat flour used in traditional pizza dough. Here's a simple recipe to make a delicious gluten-free pizza:
+
+### Ingredients:
+- **Ingredients for the Dough:**
+  - 2 cups all-purpose flour (about 100g)
+  - 3/4 cup cold unsalted butter, softened
+  - 1 tablespoon active dry yeast
+  - 1 teaspoon salt
+  - 1 tablespoon sugar
+  - 1 egg, lightly beaten
+
+- **For the Sauce:**
+  - 1 cup whole milk
+  - 1/4 cup grated Parmesan cheese
+  - 1/4 cup fresh parsley, chopped
+  - Salt and pepper to taste
+
+### Instructions:
+1. **Prepare the Dough:**
+   - In a large mixing bowl, combine the flour, yeast, salt, and sugar.
+   - Add the softened butter and stir until well combined.
+
+2. **Knead the Dough:**
+   - Turn the dough out onto a floured surface and knead it for about 5 minutes until smooth and elastic.
+
+3. **Shape the Pizza:**
+   - Divide the dough into two equal parts.
+   - Roll
+
