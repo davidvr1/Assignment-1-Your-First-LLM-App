@@ -1,2 +1,5 @@
 3) flowency was the best ,anchor is the worst ,the failures are scatterd
 4) after changing the model to sonnet 5 the rubric of length changed dramaticly every line in the rubric becamde good
+6) we agree almost on nothing but maybe it my understanding of the language ,i read some of the eplanations the LLM wrote and it was reasonable.  my judge was very hard , and it took hours to finished it. i would place a human in the loop only if wrong descision could cost a very large amount of money or life risking ', in other cases i would do some test and write criterions  , and then check if if it good i would let it become automating but i will take example for checking  while it works and check thos examples to see it working write' or let other model to take the examples.
+
+
