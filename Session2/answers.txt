@@ -1,0 +1,2 @@
+3) flowency was the best ,anchor is the worst ,the failures are scatterd
+4) after changing the model to sonnet 5 the rubric of length changed dramaticly every line in the rubric becamde good
