@@ -405,3 +405,17 @@ without exact-identifier content.
 **Conclusion:** adopt hybrid (dense+BM25, RRF-fused) retrieval at k=10 as the best
 configuration found in Task 6 — the largest, cleanest, and only regression-free
 improvement of the two experiments run.
+
+## Note on experiment count (2, not 3)
+
+The assignment's own Task 6 text is internally inconsistent: the section header reads
+"Three improvement cycles," the body instructs "Run **two** experiments," and the
+submission checklist asks for "three documented experiments." This write-up runs
+**two** full experiments (top-K, then hybrid retrieval), following the explicit body
+instruction. A third candidate lever was screened for free in Step 0 (chunk_size,
+title-prefix) and refuted before spending any judge budget on it — so a third full
+experiment wasn't run because the cheapest available lever had already failed the
+free check, not because it was skipped. If a third full experiment were required, the
+next candidate (per the assignment's own lever table) would be multi-scale chunking or
+a generation-prompt tweak, since retrieval-side levers are largely exhausted by the two
+experiments above.
