@@ -1,0 +1,6 @@
+.venv/
+key.txt
+__pycache__/
+*.pyc
+faiss_index/
+chroma_db/
