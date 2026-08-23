@@ -1,4 +1,111 @@
-# Task 5 write-up: RAG vs. baseline
+# Assignment 3 write-up: RAG over a Hebrew health-insurance corpus
+
+## Task 1: corpus and baseline
+
+**Corpus.** 6 documents on Israeli supplementary health insurance (שב"ן), across 3
+formats (PDF, Markdown, plain text — exceeds the ≥2 requirement). Full manifest and
+rationale in `corpus/MANIFEST.md`; summary:
+
+- `kelalit_moshlam_takanon.pdf` — a **real** 20-page PDF carried over from
+  Session1/Session2. Its embedded font uses a non-standard Hebrew glyph mapping, so
+  `pypdf` extraction is **genuinely garbled** (reversed/cp1255-mangled text) — this is
+  the corpus's messy document, not a contrived one.
+- `kelalit_moshlam_summary.md` — a clean, human-written Hebrew summary of that same
+  PDF's plan, letting the write-up compare a clean parse against the mangled one.
+- `maccabi_zahav_takanon.md`, `meuhedet_adif_takanon.md` — two synthetic competing
+  plans (codes `MZ-2025`, `MA-ADIF-24`), deliberately overlapping/conflicting with
+  Kelalit's numbers rather than being one-fact-per-paragraph, per the assignment's
+  warning against a too-easy corpus.
+- `comparison_faq.md` — synthetic cross-document FAQ, the deliberate source for the 2
+  required multi-hop questions.
+- `claims_process_guide.txt` — generic, insurer-agnostic claims process; explicitly
+  does **not** contain caps/waiting-periods/coverage numbers, giving a genuine (not
+  invented) source for unanswerable questions.
+
+**Baseline (no retrieval at all).** `baseline.py` ran all 30 eval questions directly
+against the generator model (Claude Haiku) with zero documents, classifying each answer
+as refused / correct / hallucinated. Full results: `baseline_results.xlsx`.
+
+| class | count (n=30) |
+|---|---|
+| refused | 30 (100%) |
+| answered correctly | 0 |
+| hallucinated | 0 |
+
+avg latency 1129ms, avg input tokens 171, avg output tokens 42.
+
+**The model refused every single question.** This is a direct, expected consequence of
+the corpus design: the specific numbers, plan codes, and caps are all invented for this
+assignment, so Haiku has no training-data shortcut to answer correctly, and — per its
+system prompt's instruction to only answer if it knows — it refused rather than guess.
+This is a clean baseline in one sense (any later RAG correctness is real, not the model
+coasting on prior knowledge) but it also has a consequence documented later in Task 5
+§3/§4: it means Task 5's required "RAG made it worse" and "right answer, broken
+pipeline" cases can't be demonstrated on this corpus, because there's no correct
+baseline answer for retrieval noise to either drag down or accidentally validate.
+
+---
+
+## Task 3: what reading the chunks and test retrievals showed
+
+`build_index.py` parses → chunks (1000 chars / 150 overlap) → embeds (`BAAI/bge-small-en-v1.5`)
+→ saves a FAISS index, then prints 10 random chunks and 3 canned test retrievals for manual
+inspection before building generation on top of it. Re-run to capture this output fresh (no
+API cost — embedding is local); full stdout is not committed (it's a one-off inspection
+step, not a deliverable file), findings below.
+
+**Parsing damage:** confirmed on the PDF (`kelalit_moshlam_takanon.pdf`) exactly as the
+manifest predicted — text extracted by `pypdf` shows the known Hebrew glyph-mapping
+issue for that document's embedded font. Comparing chunks from the PDF against the
+equivalent section in `kelalit_moshlam_summary.md` (the clean hand-written parallel)
+makes the difference directly visible: the Markdown chunk reads as normal Hebrew
+prose, the PDF chunk from the same topic does not extract cleanly. This is the
+corpus's intended "genuinely messy document" case.
+
+**Chunk boundaries:** the Markdown/text documents' chunks generally hold together —
+`RecursiveCharacterTextSplitter` prefers paragraph/sentence breaks, and at 1000
+characters most chunks stay within one section (e.g. one coverage clause or one FAQ
+entry). The PDF's chunks are the exception, both because of the glyph-mangling above
+and because a 1000-character cut through a 20-page legal document sometimes lands
+mid-clause.
+
+**3 test retrievals (bare `similarity_search`, k=3):** for the three canned questions in
+`build_index.py` (organ-transplant cap, waiting period for private surgery, orthodontic
+coverage for children), the correct source document was retrieved for all 3 at the
+document level. This looked encouraging at the time, but Task 5 later shows document-level
+retrieval success is not the same as chunk-level success — see Task 5 §2 for the full
+finding, which traces back to a decision made right here in Task 3: prepending the
+document filename to every chunk's text (the "extra-credit enrichment" step) made every
+chunk from a given document look more alike to the embedding model, including causing
+generic intro/title chunks to out-compete the actual answer-bearing content chunks.
+That trade-off wasn't visible from 3 hand-picked test queries — it only showed up once
+Task 5 measured hit-rate against all 30 real questions with ground-truth evidence
+labels, which is exactly why the assignment insists on the numeric evaluation rather
+than trusting a few spot-checks.
+
+**A second bug found by re-reading the chunks (fixed after Task 6):** the 10-random-chunk
+sample also surfaced `corpus/MANIFEST.md` itself — the write-up file describing the
+corpus — appearing as an indexed, retrievable chunk. `load_documents()` in
+`build_index.py` was loading every `.md`/`.txt`/`.pdf` file under `corpus/`, including
+its own documentation, not just the 6 actual insurance documents. This means every
+result reported in Task 5, Experiment 1, and Experiment 2 above was computed against an
+index containing 4 chunks of English corpus-documentation noise (96 chunks total, not
+the intended 92).
+
+**Impact, measured, not assumed:** fixed `load_documents()` to skip `MANIFEST.md`,
+rebuilt the index (92 chunks), and re-ran both free fact-hit sweeps
+(`sweep_hitrate.py`, `sweep_hybrid.py`) to compare against the contaminated-index
+numbers before touching any paid judge results. **Every single fact-hit-rate number
+was identical, bit-for-bit**, across all 8 chunk-size/prefix/K configs in the Task 6
+sweep and both dense/hybrid configs in the Experiment 2 sweep. The manifest's English,
+non-insurance content apparently never ranked into any top-K slot for any of the 30
+Hebrew questions, dense or lexical. Given that, and per the assignment's own
+"sweep against hit-rate before spending judge budget" advice, the paid Task 5/6
+results were **not** re-run — the free check is strong enough evidence that this bug,
+while real and worth fixing, was not load-bearing for any number in this write-up.
+`build_index.py` now excludes it going forward.
+
+---
 
 ## 1. Headline table (full table + easy/hard slices in `eval_summary.md`)
 

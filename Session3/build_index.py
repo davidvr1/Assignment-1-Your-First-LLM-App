@@ -73,6 +73,11 @@ def load_documents():
     """
     docs = []
     for path in sorted(CORPUS_DIR.iterdir()):
+        if path.name == "MANIFEST.md":
+            # Documentation ABOUT the corpus, not corpus content -- indexing it
+            # alongside the real documents means a bare-English description of
+            # the dataset is retrievable as if it were an insurance document.
+            continue
         if path.suffix == ".pdf":
             # Each returned Document already has metadata={"source": ..., "page": N}
             loaded = PyPDFLoader(str(path)).load()
