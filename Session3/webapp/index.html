@@ -1,0 +1,336 @@
+<!doctype html>
+<html lang="en">
+<head>
+<meta charset="utf-8" />
+<title>RAG Playground</title>
+<style>
+  :root {
+    --bg: #0f1115; --panel: #171a21; --border: #2a2f3a; --text: #e6e8ee;
+    --muted: #9399a8; --accent: #5b9dfd; --good: #48c774; --bad: #f14668;
+  }
+  * { box-sizing: border-box; }
+  body { margin: 0; background: var(--bg); color: var(--text); font-family: system-ui, -apple-system, "Segoe UI", Arial, sans-serif; }
+  header { padding: 14px 24px; border-bottom: 1px solid var(--border); display: flex; align-items: center; gap: 12px; }
+  header h1 { font-size: 16px; margin: 0; font-weight: 600; }
+  header .tag { color: var(--muted); font-size: 12px; }
+  .layout { display: grid; grid-template-columns: 340px 1fr; gap: 16px; padding: 16px; align-items: start; }
+  .panel { background: var(--panel); border: 1px solid var(--border); border-radius: 10px; padding: 16px; }
+  .panel + .panel { margin-top: 16px; }
+  label { display: block; font-size: 12px; color: var(--muted); margin: 12px 0 4px; }
+  label:first-child { margin-top: 0; }
+  select, textarea, input[type=text] {
+    width: 100%; background: #0c0e13; color: var(--text); border: 1px solid var(--border);
+    border-radius: 6px; padding: 8px; font-size: 13px; font-family: inherit;
+  }
+  textarea { resize: vertical; min-height: 70px; }
+  input[type=range] { width: 100%; }
+  .row { display: flex; justify-content: space-between; font-size: 12px; color: var(--muted); }
+  .btn {
+    background: var(--accent); color: #fff; border: none; border-radius: 6px; padding: 9px 14px;
+    font-size: 13px; font-weight: 600; cursor: pointer; margin-top: 12px; width: 100%;
+  }
+  .btn:disabled { opacity: 0.5; cursor: not-allowed; }
+  .btn.secondary { background: #2a2f3a; }
+  .pill { display: inline-block; font-size: 11px; padding: 2px 8px; border-radius: 999px; background: #232833; color: var(--muted); margin-left: 6px; }
+  .pill.active { background: #16331f; color: var(--good); }
+  .tabs { display: flex; gap: 6px; margin-bottom: 12px; }
+  .tab { padding: 6px 12px; border-radius: 6px; cursor: pointer; font-size: 13px; color: var(--muted); }
+  .tab.active { background: #232833; color: var(--text); }
+  .answer { white-space: pre-wrap; line-height: 1.6; font-size: 14px; direction: rtl; text-align: right; }
+  .badge { display: inline-block; font-size: 11px; padding: 3px 8px; border-radius: 4px; font-weight: 600; margin-bottom: 10px; }
+  .badge.ok { background: #16331f; color: var(--good); }
+  .badge.no { background: #3a1620; color: var(--bad); }
+  .meta { display: flex; gap: 16px; flex-wrap: wrap; margin-top: 14px; font-size: 12px; color: var(--muted); }
+  .meta b { color: var(--text); }
+  .chunk { border: 1px solid var(--border); border-radius: 8px; padding: 10px; margin-top: 10px; font-size: 12.5px; }
+  .chunk .head { color: var(--accent); margin-bottom: 6px; font-weight: 600; }
+  .chunk .body { color: var(--muted); direction: rtl; text-align: right; white-space: pre-wrap; }
+  table { width: 100%; border-collapse: collapse; font-size: 12px; }
+  th, td { border-bottom: 1px solid var(--border); padding: 6px 8px; text-align: left; vertical-align: top; }
+  th { color: var(--muted); position: sticky; top: 0; background: var(--panel); }
+  td.text { max-width: 480px; direction: rtl; text-align: right; }
+  td.vec { font-family: monospace; color: var(--muted); white-space: nowrap; }
+  .table-wrap { max-height: 620px; overflow: auto; }
+  .empty { color: var(--muted); font-size: 13px; padding: 20px 0; text-align: center; }
+  .err { color: var(--bad); font-size: 13px; margin-top: 10px; white-space: pre-wrap; }
+  .spinner { display: inline-block; width: 12px; height: 12px; border: 2px solid #444; border-top-color: var(--accent); border-radius: 50%; animation: spin 0.7s linear infinite; margin-left: 6px; vertical-align: middle; }
+  @keyframes spin { to { transform: rotate(360deg); } }
+  .pager { display: flex; gap: 8px; align-items: center; margin-bottom: 10px; font-size: 12px; color: var(--muted); }
+  .pager button { background: #232833; border: 1px solid var(--border); color: var(--text); border-radius: 4px; padding: 4px 10px; cursor: pointer; font-size: 12px; }
+  .pager button:disabled { opacity: 0.4; cursor: not-allowed; }
+</style>
+</head>
+<body>
+<div id="root"></div>
+
+<script src="https://unpkg.com/react@18/umd/react.production.min.js"></script>
+<script src="https://unpkg.com/react-dom@18/umd/react-dom.production.min.js"></script>
+<script src="https://unpkg.com/@babel/standalone/babel.min.js"></script>
+
+<script type="text/plain" id="app-source">
+const { useState, useEffect, useCallback } = React;
+
+function useConfig() {
+  const [config, setConfig] = useState(null);
+  const refresh = useCallback(() => {
+    fetch("/api/config").then(r => r.json()).then(setConfig);
+  }, []);
+  useEffect(refresh, [refresh]);
+  return [config, refresh];
+}
+
+function ControlPanel({ config, refreshConfig, embeddingModel, setEmbeddingModel,
+                        llmModel, setLlmModel, retrieverMode, setRetrieverMode,
+                        k, setK, denseWeight, setDenseWeight }) {
+  const [activating, setActivating] = useState(false);
+  const [activateErr, setActivateErr] = useState(null);
+
+  const activated = config ? config.activated_models.includes(embeddingModel) : false;
+
+  const activate = () => {
+    setActivating(true);
+    setActivateErr(null);
+    fetch("/api/activate-embedding", {
+      method: "POST",
+      headers: { "Content-Type": "application/json" },
+      body: JSON.stringify({ embedding_model: embeddingModel }),
+    })
+      .then(r => { if (!r.ok) return r.json().then(e => Promise.reject(e)); return r.json(); })
+      .then(() => refreshConfig())
+      .catch(e => setActivateErr(e.detail || String(e)))
+      .finally(() => setActivating(false));
+  };
+
+  if (!config) return <div className="panel">Loading config…</div>;
+
+  return (
+    <div className="panel">
+      <label>Embedding model
+        <span className={"pill" + (activated ? " active" : "")}>{activated ? "activated" : "not activated"}</span>
+      </label>
+      <select value={embeddingModel} onChange={e => setEmbeddingModel(e.target.value)}>
+        {config.embedding_models.map(m => <option key={m} value={m}>{m}</option>)}
+      </select>
+      <button className="btn secondary" onClick={activate} disabled={activating}>
+        {activating ? <>Building index…<span className="spinner"></span></> : (activated ? "Rebuild / re-activate" : "Activate embedding model")}
+      </button>
+      {activateErr && <div className="err">{activateErr}</div>}
+
+      <label>LLM model</label>
+      <select value={llmModel} onChange={e => setLlmModel(e.target.value)}>
+        {config.llm_models.map(m => <option key={m} value={m}>{m}</option>)}
+      </select>
+
+      <label>Retriever mode</label>
+      <select value={retrieverMode} onChange={e => setRetrieverMode(e.target.value)}>
+        <option value="dense">Dense (embeddings only)</option>
+        <option value="hybrid">Hybrid (dense + BM25)</option>
+      </select>
+
+      <label>
+        <div className="row"><span>Top-K</span><span>{k}</span></div>
+      </label>
+      <input type="range" min="1" max="15" step="1" value={k} onChange={e => setK(Number(e.target.value))} />
+
+      {retrieverMode === "hybrid" && (
+        <>
+          <label>
+            <div className="row"><span>Dense weight (RRF)</span><span>{denseWeight.toFixed(2)}</span></div>
+          </label>
+          <input type="range" min="0" max="1" step="0.05" value={denseWeight}
+                 onChange={e => setDenseWeight(Number(e.target.value))} />
+          <div className="row" style={{marginTop: 2}}>
+            <span>lexical (BM25)</span><span>dense (embeddings)</span>
+          </div>
+        </>
+      )}
+    </div>
+  );
+}
+
+function AskPanel({ params }) {
+  const [query, setQuery] = useState("מהי תקופת האכשרה לניתוח פרטי בישראל?");
+  const [loading, setLoading] = useState(false);
+  const [result, setResult] = useState(null);
+  const [error, setError] = useState(null);
+
+  const ask = () => {
+    setLoading(true);
+    setError(null);
+    setResult(null);
+    fetch("/api/ask", {
+      method: "POST",
+      headers: { "Content-Type": "application/json" },
+      body: JSON.stringify({ query, ...params }),
+    })
+      .then(r => { if (!r.ok) return r.json().then(e => Promise.reject(e)); return r.json(); })
+      .then(setResult)
+      .catch(e => setError(e.detail || String(e)))
+      .finally(() => setLoading(false));
+  };
+
+  return (
+    <div className="panel">
+      <label>Prompt</label>
+      <textarea value={query} onChange={e => setQuery(e.target.value)} dir="rtl" />
+      <button className="btn" onClick={ask} disabled={loading}>
+        {loading ? <>Asking…<span className="spinner"></span></> : "Ask"}
+      </button>
+      {error && <div className="err">{error}</div>}
+
+      {result && (
+        <div style={{marginTop: 18}}>
+          <span className={"badge " + (result.answered ? "ok" : "no")}>
+            {result.answered ? "ANSWERED" : "REFUSED"}
+          </span>
+          <div className="answer">{result.answer}</div>
+
+          <div className="meta">
+            <span><b>{result.retrieval_ms.toFixed(0)}ms</b> retrieval</span>
+            <span><b>{result.generation_ms.toFixed(0)}ms</b> generation</span>
+            <span><b>{result.input_tokens}</b> in / <b>{result.output_tokens}</b> out tokens</span>
+            {result.invalid_citations.length > 0 &&
+              <span style={{color: "var(--bad)"}}>invalid citations: {result.invalid_citations.join(", ")}</span>}
+          </div>
+
+          {result.sources.length > 0 && (
+            <div style={{marginTop: 10, fontSize: 12.5}}>
+              <b style={{color: "var(--muted)"}}>Sources:</b> {result.sources.join(" · ")}
+            </div>
+          )}
+
+          <div style={{marginTop: 14, fontSize: 12, color: "var(--muted)"}}>Retrieved chunks</div>
+          {result.retrieved_chunks.map((c, i) => (
+            <div className="chunk" key={i}>
+              <div className="head">[{i + 1}] {c.doc_name} (page/section: {c.page}, chunk_id: {c.chunk_id})</div>
+              <div className="body">{c.text}</div>
+            </div>
+          ))}
+        </div>
+      )}
+    </div>
+  );
+}
+
+function VectorTable({ embeddingModel, activated }) {
+  const [data, setData] = useState(null);
+  const [offset, setOffset] = useState(0);
+  const [error, setError] = useState(null);
+  const limit = 25;
+
+  useEffect(() => {
+    if (!activated) { setData(null); return; }
+    setError(null);
+    fetch(`/api/vectors?embedding_model=${encodeURIComponent(embeddingModel)}&offset=${offset}&limit=${limit}`)
+      .then(r => { if (!r.ok) return r.json().then(e => Promise.reject(e)); return r.json(); })
+      .then(setData)
+      .catch(e => setError(e.detail || String(e)));
+  }, [embeddingModel, offset, activated]);
+
+  if (!activated) return <div className="empty">Activate this embedding model to see its vector table.</div>;
+  if (error) return <div className="err">{error}</div>;
+  if (!data) return <div className="empty">Loading vectors…</div>;
+
+  const totalPages = Math.ceil(data.total / limit);
+  const page = Math.floor(offset / limit) + 1;
+
+  return (
+    <div>
+      <div className="pager">
+        <button disabled={offset === 0} onClick={() => setOffset(Math.max(0, offset - limit))}>← Prev</button>
+        <span>page {page} / {totalPages} · {data.total} chunks total · {data.rows[0]?.vector_dims}-dim vectors</span>
+        <button disabled={offset + limit >= data.total} onClick={() => setOffset(offset + limit)}>Next →</button>
+      </div>
+      <div className="table-wrap">
+        <table>
+          <thead>
+            <tr>
+              <th>#</th><th>doc</th><th>page</th><th>chunk_id</th><th>text</th><th>vector preview</th>
+            </tr>
+          </thead>
+          <tbody>
+            {data.rows.map(r => (
+              <tr key={r.row}>
+                <td>{r.row}</td>
+                <td>{r.doc_name}</td>
+                <td>{r.page}</td>
+                <td>{r.chunk_id}</td>
+                <td className="text">{r.text.slice(0, 220)}{r.text.length > 220 ? "…" : ""}</td>
+                <td className="vec">[{r.vector_preview.map(v => v.toFixed(3)).join(", ")}, …]</td>
+              </tr>
+            ))}
+          </tbody>
+        </table>
+      </div>
+    </div>
+  );
+}
+
+function App() {
+  const [config, refreshConfig] = useConfig();
+  const [embeddingModel, setEmbeddingModel] = useState(null);
+  const [llmModel, setLlmModel] = useState(null);
+  const [retrieverMode, setRetrieverMode] = useState("dense");
+  const [k, setK] = useState(5);
+  const [denseWeight, setDenseWeight] = useState(0.5);
+  const [tab, setTab] = useState("ask");
+
+  useEffect(() => {
+    if (config && embeddingModel === null) setEmbeddingModel(config.default_embedding_model);
+    if (config && llmModel === null) setLlmModel(config.default_llm_model);
+  }, [config]);
+
+  if (!config || embeddingModel === null || llmModel === null) {
+    return <div style={{padding: 24, color: "#9399a8"}}>Loading…</div>;
+  }
+
+  const activated = config.activated_models.includes(embeddingModel);
+  const params = { k, retriever_mode: retrieverMode, dense_weight: denseWeight, embedding_model: embeddingModel, llm_model: llmModel };
+
+  return (
+    <React.Fragment>
+      <header>
+        <h1>RAG Playground</h1>
+        <span className="tag">local Session3 RAG pipeline · Claude generator · FAISS + BM25 retriever</span>
+      </header>
+      <div className="layout">
+        <ControlPanel
+          config={config} refreshConfig={refreshConfig}
+          embeddingModel={embeddingModel} setEmbeddingModel={setEmbeddingModel}
+          llmModel={llmModel} setLlmModel={setLlmModel}
+          retrieverMode={retrieverMode} setRetrieverMode={setRetrieverMode}
+          k={k} setK={setK}
+          denseWeight={denseWeight} setDenseWeight={setDenseWeight}
+        />
+        <div>
+          <div className="tabs">
+            <div className={"tab" + (tab === "ask" ? " active" : "")} onClick={() => setTab("ask")}>Ask</div>
+            <div className={"tab" + (tab === "vectors" ? " active" : "")} onClick={() => setTab("vectors")}>Vector table</div>
+          </div>
+          {tab === "ask"
+            ? <AskPanel params={params} />
+            : <div className="panel"><VectorTable embeddingModel={embeddingModel} activated={activated} /></div>}
+        </div>
+      </div>
+    </React.Fragment>
+  );
+}
+
+ReactDOM.createRoot(document.getElementById("root")).render(<App />);
+</script>
+<script>
+  // Babel-standalone's default JSX runtime is "automatic", which emits an
+  // `import` statement -- something a plain <script> can't execute. Transform
+  // the JSX source manually with the classic runtime (React.createElement
+  // calls only, no import) instead of relying on the auto-processed
+  // type="text/babel" script tags.
+  const source = document.getElementById("app-source").textContent;
+  const compiled = Babel.transform(source, {
+    presets: [["react", { runtime: "classic" }]],
+  }).code;
+  const script = document.createElement("script");
+  script.textContent = compiled;
+  document.body.appendChild(script);
+</script>
+</body>
+</html>
