@@ -55,6 +55,15 @@ from rag_pipeline import (
     check_citations,
     load_api_key,
 )
+from agent import run_agent
+
+# Human-readable labels for the agent's tools, shown in the UI so it's clear
+# *which* MCP/tool answered (as opposed to "the model just knows this").
+TOOL_LABELS = {
+    "retrieve_policy_docs": "RAG (retrieve_policy_docs)",
+    "calculate": "MCP tool: calculate",
+    "date_duration": "MCP tool: date_duration",
+}
 
 app = FastAPI(title="RAG Playground")
 
@@ -183,6 +192,10 @@ class AskRequest(BaseModel):
     llm_model: str = DEFAULT_LLM_MODEL
 
 
+class AskAgentRequest(BaseModel):
+    query: str
+
+
 # ---------------------------------------------------------------------------
 # Routes
 # ---------------------------------------------------------------------------
@@ -269,6 +282,9 @@ def ask(req: AskRequest):
     grounded_answer = None
     resp = None
     for attempt in range(3):
+        # claude-*-5 models (all of LLM_MODELS) reject an explicit
+        # `temperature` param outright - see agent.py's AGENT_MODEL_UPGRADE
+        # note. Don't send it at all.
         resp = client.chat.completions.create(
             model=req.llm_model,
             messages=[
@@ -277,7 +293,6 @@ def ask(req: AskRequest):
             ],
             tools=[ANSWER_TOOL],
             tool_choice={"type": "function", "function": {"name": "submit_answer"}},
-            temperature=0 if attempt == 0 else 0.3,
         )
         tool_calls = resp.choices[0].message.tool_calls
         try:
@@ -305,6 +320,8 @@ def ask(req: AskRequest):
         "generation_ms": generation_ms,
         "input_tokens": resp.usage.prompt_tokens,
         "output_tokens": resp.usage.completion_tokens,
+        "answer_source": "RAG (direct retrieval)",
+        "tools_used": ["retrieve_policy_docs"],
         "retrieved_chunks": [
             {
                 "doc_name": c.metadata.get("doc_name"),
@@ -315,6 +332,38 @@ def ask(req: AskRequest):
             for c in chunks
         ],
         "params": req.model_dump(),
+    }
+
+
+@app.post("/api/ask-agent")
+def ask_agent(req: AskAgentRequest):
+    if not req.query.strip():
+        raise HTTPException(400, "query must not be empty")
+
+    result = run_agent(req.query)
+    tools_used = result["tools_used"]  # in call order, may repeat
+
+    if not tools_used:
+        # The agent answered without calling any tool - i.e. straight from
+        # the model's own (general) knowledge, not the corpus or a tool.
+        answer_source = "General knowledge (no tool called)"
+    else:
+        seen = []
+        for t in tools_used:
+            if t not in seen:
+                seen.append(t)
+        answer_source = " + ".join(TOOL_LABELS.get(t, f"MCP tool: {t}") for t in seen)
+
+    return {
+        "answer": result["answer"],
+        "answered": result["terminal_state"] == "answered",
+        "terminal_state": result["terminal_state"],
+        "answer_source": answer_source,
+        "tools_used": tools_used,
+        "steps": result["steps"],
+        "tool_calls": result["tool_calls"],
+        "total_tokens": result["total_tokens"],
+        "wall_ms": result["wall_ms"],
     }
 
 

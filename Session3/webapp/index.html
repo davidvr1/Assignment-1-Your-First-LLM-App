@@ -40,6 +40,7 @@
   .badge { display: inline-block; font-size: 11px; padding: 3px 8px; border-radius: 4px; font-weight: 600; margin-bottom: 10px; }
   .badge.ok { background: #16331f; color: var(--good); }
   .badge.no { background: #3a1620; color: var(--bad); }
+  .badge.source { background: #1c2333; color: var(--accent); margin-left: 6px; }
   .meta { display: flex; gap: 16px; flex-wrap: wrap; margin-top: 14px; font-size: 12px; color: var(--muted); }
   .meta b { color: var(--text); }
   .chunk { border: 1px solid var(--border); border-radius: 8px; padding: 10px; margin-top: 10px; font-size: 12.5px; }
@@ -148,7 +149,7 @@ function ControlPanel({ config, refreshConfig, embeddingModel, setEmbeddingModel
   );
 }
 
-function AskPanel({ params }) {
+function AskPanel({ params, mode, setMode }) {
   const [query, setQuery] = useState("מהי תקופת האכשרה לניתוח פרטי בישראל?");
   const [loading, setLoading] = useState(false);
   const [result, setResult] = useState(null);
@@ -158,10 +159,12 @@ function AskPanel({ params }) {
     setLoading(true);
     setError(null);
     setResult(null);
-    fetch("/api/ask", {
+    const url = mode === "agent" ? "/api/ask-agent" : "/api/ask";
+    const body = mode === "agent" ? { query } : { query, ...params };
+    fetch(url, {
       method: "POST",
       headers: { "Content-Type": "application/json" },
-      body: JSON.stringify({ query, ...params }),
+      body: JSON.stringify(body),
     })
       .then(r => { if (!r.ok) return r.json().then(e => Promise.reject(e)); return r.json(); })
       .then(setResult)
@@ -171,6 +174,12 @@ function AskPanel({ params }) {
 
   return (
     <div className="panel">
+      <label>Answering mode</label>
+      <select value={mode} onChange={e => { setMode(e.target.value); setResult(null); }}>
+        <option value="rag">RAG only (direct retrieval → Claude)</option>
+        <option value="agent">Agent (tool-using: RAG + calculate + date_duration)</option>
+      </select>
+
       <label>Prompt</label>
       <textarea value={query} onChange={e => setQuery(e.target.value)} dir="rtl" />
       <button className="btn" onClick={ask} disabled={loading}>
@@ -183,24 +192,39 @@ function AskPanel({ params }) {
           <span className={"badge " + (result.answered ? "ok" : "no")}>
             {result.answered ? "ANSWERED" : "REFUSED"}
           </span>
+          <span className="badge source">answered by: {result.answer_source}</span>
           <div className="answer">{result.answer}</div>
 
-          <div className="meta">
-            <span><b>{result.retrieval_ms.toFixed(0)}ms</b> retrieval</span>
-            <span><b>{result.generation_ms.toFixed(0)}ms</b> generation</span>
-            <span><b>{result.input_tokens}</b> in / <b>{result.output_tokens}</b> out tokens</span>
-            {result.invalid_citations.length > 0 &&
-              <span style={{color: "var(--bad)"}}>invalid citations: {result.invalid_citations.join(", ")}</span>}
-          </div>
+          {mode === "rag" ? (
+            <div className="meta">
+              <span><b>{result.retrieval_ms.toFixed(0)}ms</b> retrieval</span>
+              <span><b>{result.generation_ms.toFixed(0)}ms</b> generation</span>
+              <span><b>{result.input_tokens}</b> in / <b>{result.output_tokens}</b> out tokens</span>
+              {result.invalid_citations.length > 0 &&
+                <span style={{color: "var(--bad)"}}>invalid citations: {result.invalid_citations.join(", ")}</span>}
+            </div>
+          ) : (
+            <div className="meta">
+              <span><b>{result.wall_ms.toFixed(0)}ms</b> total</span>
+              <span><b>{result.steps}</b> agent steps</span>
+              <span><b>{result.tool_calls}</b> tool calls</span>
+              <span><b>{result.total_tokens}</b> tokens</span>
+            </div>
+          )}
 
-          {result.sources.length > 0 && (
+          {mode === "rag" && result.sources.length > 0 && (
             <div style={{marginTop: 10, fontSize: 12.5}}>
               <b style={{color: "var(--muted)"}}>Sources:</b> {result.sources.join(" · ")}
             </div>
           )}
 
-          <div style={{marginTop: 14, fontSize: 12, color: "var(--muted)"}}>Retrieved chunks</div>
-          {result.retrieved_chunks.map((c, i) => (
+          {mode === "agent" && result.tools_used.length > 0 && (
+            <div style={{marginTop: 10, fontSize: 12.5}}>
+              <b style={{color: "var(--muted)"}}>Tool call sequence:</b> {result.tools_used.join(" → ")}
+            </div>
+          )}
+
+          {mode === "rag" && result.retrieved_chunks.map((c, i) => (
             <div className="chunk" key={i}>
               <div className="head">[{i + 1}] {c.doc_name} (page/section: {c.page}, chunk_id: {c.chunk_id})</div>
               <div className="body">{c.text}</div>
@@ -274,6 +298,7 @@ function App() {
   const [k, setK] = useState(5);
   const [denseWeight, setDenseWeight] = useState(0.5);
   const [tab, setTab] = useState("ask");
+  const [mode, setMode] = useState("rag");
 
   useEffect(() => {
     if (config && embeddingModel === null) setEmbeddingModel(config.default_embedding_model);
@@ -308,7 +333,7 @@ function App() {
             <div className={"tab" + (tab === "vectors" ? " active" : "")} onClick={() => setTab("vectors")}>Vector table</div>
           </div>
           {tab === "ask"
-            ? <AskPanel params={params} />
+            ? <AskPanel params={params} mode={mode} setMode={setMode} />
             : <div className="panel"><VectorTable embeddingModel={embeddingModel} activated={activated} /></div>}
         </div>
       </div>
