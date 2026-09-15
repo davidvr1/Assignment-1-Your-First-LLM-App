@@ -97,18 +97,18 @@ def run_single_config(task: dict, run_idx: int) -> dict:
     if task["type"] == "handoff_stress":
         check = HANDOFF_CHECKS.get(task["id"])
         handoff_correct = bool(check(result["answer"])) if check else "n/a"
-        if success is None:
-            success = handoff_correct
 
+    jv = judge_team_run(task["task"], task["success_criteria"], ["agent"],
+                         {"agent_output": result["answer"]}, result["answer"], result["terminal_state"])
+    faithfulness, faith_expl = jv.faithfulness, jv.faithfulness_explanation
     if success is None:
-        jv = judge_team_run(task["task"], task["success_criteria"], ["agent"],
-                             {"agent_output": result["answer"]}, result["answer"], result["terminal_state"])
         success = jv.task_success
-        faithfulness, faith_expl = jv.faithfulness, jv.faithfulness_explanation
-    else:
-        jv = judge_team_run(task["task"], task["success_criteria"], ["agent"],
-                             {"agent_output": result["answer"]}, result["answer"], result["terminal_state"])
-        faithfulness, faith_expl = jv.faithfulness, jv.faithfulness_explanation
+    # symmetric with run_team_config: a handoff_stress answer must be BOTH
+    # substantively correct (judge) AND satisfy the format constraint (code) -
+    # constraint-only would let a clean refusal "pass" just by being short
+    # and in the right language, which is a format check, not a task-success one.
+    if task["type"] == "handoff_stress" and handoff_correct != "n/a":
+        success = bool(success) and handoff_correct
 
     return {
         "config": "single", "run": run_idx, "answer": result["answer"], "success": success,

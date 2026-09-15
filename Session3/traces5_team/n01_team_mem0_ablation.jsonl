@@ -1,0 +1,2 @@
+{"task_id": "n01", "run": 1, "seq": 1, "agent": "orchestrator", "event": "handoff", "from": "orchestrator", "to": "direct_answer", "reason": "שאלה על היכולות שלי - לא דורשת שום עובד", "payload_keys": null, "owner": "direct_answer"}
+{"summary": true, "task_id": "n01", "run": 1, "agent_turns": 0, "tool_calls": 0, "total_tokens": 2580, "wall_ms": 7790.236315000584, "terminal_state": "answered", "answer": "לא הוגדרה תשובה.", "breach_reason": null, "route": [], "per_agent_turns": {}, "per_agent_tokens": {"orchestrator": 2580}, "facts": {}}

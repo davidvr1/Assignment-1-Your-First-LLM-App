@@ -86,7 +86,7 @@ SCOPE_CONTRACTS = {
     ),
 }
 
-ORCHESTRATOR_SYSTEM = f"""את/ה האורכסטרטור של צוות סוכנים לשב\"ן (ביטוח בריאות משלים בישראל).
+ORCHESTRATOR_SYSTEM_BASE = """את/ה האורכסטרטור של צוות סוכנים לשב\"ן (ביטוח בריאות משלים בישראל).
 תפקידך היחיד: לסווג את הבקשה ולשגר אותה לעובד המתאים, או לענות ישירות אם
 אין צורך בשום עובד.
 
@@ -97,8 +97,13 @@ ORCHESTRATOR_SYSTEM = f"""את/ה האורכסטרטור של צוות סוכנ�
 
 כללים:
 1. אין לוגיקה עסקית כאן - רק סיווג ושיגור. אל תחשב/י בעצמך ואל תחפש/י בעצמך.
-2. אם הבקשה לא דורשת שום עובד (שיחת חולין, שאלה על היכולות שלך, תודה),
-   ענה/י ישירות (destination="direct_answer") - זה המסלול המהיר.
+2. אם הבקשה לא דורשת שום עובד - ענה/י ישירות (destination="direct_answer").
+   "לא דורשת שום עובד" משמעו **רק**: שיחת חולין טהורה (ברכה, תודה, פרידה),
+   שאלה מטא על היכולות/תפקיד שלך, או משוב שאינו מכיל שום בקשה עובדתית.
+   תלונה מנוסחת באופן כללי או לא ברור ("זה מבולגן", "אני לא מבין", "למה
+   ככה") **אינה** שיחת חולין אם היא נוגעת לתהליך, מסמך, תשלום או זכות
+   בתחום השב"ן - גם אם המילה "פוליסה"/"תקנון" לא נאמרה במפורש. מקרה כזה
+   דורש שיגור ל-researcher קודם; אין לענות ישירות רק כי הניסוח מעורפל.
 3. אם יש עובדות שכבר נאספו (facts) שמספיקות לענות, ואין אילוצי פורמט
    (שפה/אורך) שדורשים ניסוח מיוחד - ענה/י ישירות מהעובדות הללו.
 4. אם יש אילוצי פורמט (שפה מסוימת, מגבלת מילים/משפטים) - יש לשגר ל-writer
@@ -112,13 +117,20 @@ ORCHESTRATOR_SYSTEM = f"""את/ה האורכסטרטור של צוות סוכנ�
    סעיף, מילת מפתח חלופית) - אל תשגר/י שוב עם אותה בקשה כללית. אם אין לך
    רעיון למונח חיפוש חדש וממשי, עברי/עבור ישירות לסירוב (כלל 6) במקום
    לשגר שוב.
-
-{AGENTS_MD}
 """
 
 
-def _worker_system_prompt(agent: str) -> str:
-    return f"{SCOPE_CONTRACTS[agent]}\n\n{AGENTS_MD}"
+def _orchestrator_system(use_memory: bool = True) -> str:
+    return f"{ORCHESTRATOR_SYSTEM_BASE}\n\n{AGENTS_MD}" if use_memory else ORCHESTRATOR_SYSTEM_BASE
+
+
+def _worker_system_prompt(agent: str, use_memory: bool = True) -> str:
+    if use_memory:
+        return f"{SCOPE_CONTRACTS[agent]}\n\n{AGENTS_MD}"
+    return SCOPE_CONTRACTS[agent]
+
+
+ORCHESTRATOR_SYSTEM = _orchestrator_system(True)  # backward-compat module constant, default (memory on)
 
 
 class _HandoffFlat(BaseModel):
@@ -165,12 +177,12 @@ def _parse_handoff(result: dict) -> Handoff | None:
     return None
 
 
-def _build_worker(agent: str, model: str = WORKER_MODEL):
+def _build_worker(agent: str, model: str = WORKER_MODEL, use_memory: bool = True):
     kwargs = {"model": model, "api_key": load_api_key(), "max_tokens": 1024}
     if model != WORKER_MODEL_UPGRADE:
         kwargs["temperature"] = 0
     llm = ChatAnthropic(**kwargs)
-    return create_react_agent(llm, WORKER_TOOLS[agent], prompt=_worker_system_prompt(agent))
+    return create_react_agent(llm, WORKER_TOOLS[agent], prompt=_worker_system_prompt(agent, use_memory))
 
 
 def _payload_message(payload: HandoffPayload) -> str:
@@ -182,9 +194,10 @@ def _payload_message(payload: HandoffPayload) -> str:
     return "\n".join(lines)
 
 
-def _run_worker(agent: str, payload: HandoffPayload, task_id, run_idx, seq_ref, trace_lines, model=WORKER_MODEL):
+def _run_worker(agent: str, payload: HandoffPayload, task_id, run_idx, seq_ref, trace_lines,
+                 model=WORKER_MODEL, use_memory: bool = True):
     """Runs one worker to completion. Returns (output_text, tool_calls, tokens_used)."""
-    worker = _build_worker(agent, model=model)
+    worker = _build_worker(agent, model=model, use_memory=use_memory)
     config = {"recursion_limit": WORKER_RECURSION_LIMIT}
     output_text = ""
     tool_calls = 0
@@ -251,16 +264,21 @@ def run_team(
     trace_path: str | Path | None = None,
     worker_model: str = WORKER_MODEL,
     upgrade_agent: str | None = None,
+    use_memory: bool = True,
 ) -> dict:
     """Runs one task through the team once. Returns a summary dict and (if
     trace_path given) appends JSONL trace lines: tool_call events, handoff
     events, and one summary line (terminal_state one of: answered / refused
-    / cap_breached / loop_detected / error)."""
+    / cap_breached / loop_detected / error).
+
+    use_memory=False strips AGENTS.md from every agent's system prompt -
+    Task 5's with/without measurement is this flag flipped, nothing else."""
     state = TeamState(task_id=task_id, run_idx=run_idx, task=task)
     trace_lines = []
     seq = [0]
     start = time.perf_counter()
     orchestrator = _build_orchestrator()
+    orchestrator_system = _orchestrator_system(use_memory)
 
     try:
         while True:
@@ -293,7 +311,7 @@ def run_team(
             last_parsing_error = None
             for _orch_attempt in range(2):  # one retry: rare structured-output misses under load (empirically ~5%)
                 result = orchestrator.invoke([
-                    {"role": "system", "content": ORCHESTRATOR_SYSTEM},
+                    {"role": "system", "content": orchestrator_system},
                     {"role": "user", "content": prompt},
                 ])
                 raw_msg = result["raw"]
@@ -352,7 +370,7 @@ def run_team(
             payload = handoff.payload or HandoffPayload(summary=task, open_question=task)
             model_for_agent = WORKER_MODEL_UPGRADE if agent == upgrade_agent else worker_model
             output_text, tool_calls, tokens_used = _run_worker(
-                agent, payload, task_id, run_idx, seq, trace_lines, model=model_for_agent
+                agent, payload, task_id, run_idx, seq, trace_lines, model=model_for_agent, use_memory=use_memory
             )
             state.tool_calls += tool_calls
             state.total_tokens += tokens_used

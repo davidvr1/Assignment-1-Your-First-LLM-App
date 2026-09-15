@@ -1,0 +1,4 @@
+agent,turns_taken,per_agent_success_rate,failures_attributed
+researcher,45,80%,"b02, b03, c03, c04, c06"
+analyst,16,69%,"b04, c07"
+writer,3,100%,(none)
