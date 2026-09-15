@@ -1,0 +1,202 @@
+[
+  {
+    "id": "c01",
+    "task": "כמה בסך הכל ישלם מבוטח מאוחדת עדיף עבור 3 ניתוחים פרטיים בישראל השנה, לפי דמי ההשתתפות העצמית שלו?",
+    "success_criteria": "answer contains \"1,500\" or \"1500\"",
+    "reference_answer": "1,500 ₪ (500 ₪ x 3 ניתוחים).",
+    "type": "cross_domain",
+    "expected_agents": ["researcher", "analyst"],
+    "capable_agents": ["researcher"],
+    "answerable": true
+  },
+  {
+    "id": "c02",
+    "task": "תביעה במכבי זהב נדחתה ב-2026-01-10. מה התאריך האחרון להגשת ערעור לוועדת הערר?",
+    "success_criteria": "answer contains a date 60 days after 2026-01-10 (2026-03-11)",
+    "reference_answer": "2026-03-11 (60 יום ממועד הדחייה).",
+    "type": "cross_domain",
+    "expected_agents": ["researcher", "analyst"],
+    "capable_agents": ["researcher"],
+    "answerable": true
+  },
+  {
+    "id": "c03",
+    "task": "כמה יעלה בסך הכל למבוטח מכבי זהב לבצע 4 ביקורים אצל רופא מומחה השנה, לפי דמי ההשתתפות העצמית?",
+    "success_criteria": "answer contains \"180\"",
+    "reference_answer": "180 ₪ (45 ₪ x 4 ביקורים).",
+    "type": "cross_domain",
+    "expected_agents": ["researcher", "analyst"],
+    "capable_agents": ["researcher"],
+    "answerable": true
+  },
+  {
+    "id": "c04",
+    "task": "מבוטח מאוחדת עדיף עבר 2 ניתוחים פרטיים בישראל השנה. כמה שילם בסך הכל בהשתתפות עצמית?",
+    "success_criteria": "answer contains \"1,000\" or \"1000\"",
+    "reference_answer": "1,000 ₪ (500 ₪ x 2 ניתוחים).",
+    "type": "cross_domain",
+    "expected_agents": ["researcher", "analyst"],
+    "capable_agents": ["researcher"],
+    "answerable": true
+  },
+  {
+    "id": "c05",
+    "task": "מבוטח מכבי זהב הגיש תביעה ב-2026-02-01. מהו התאריך האחרון שבו מכבי חייבת לטפל בתביעה, לפי משך הטיפול המרבי?",
+    "success_criteria": "answer contains a date 45 days after 2026-02-01 (2026-03-18)",
+    "reference_answer": "2026-03-18 (45 יום ממועד קבלת כל המסמכים).",
+    "type": "cross_domain",
+    "expected_agents": ["researcher", "analyst"],
+    "capable_agents": ["researcher"],
+    "answerable": true
+  },
+  {
+    "id": "c06",
+    "task": "בין מכבי זהב ומאוחדת עדיף, באיזו תכנית ההשתתפות העצמית לניתוח פרטי בישראל זולה יותר, וכמה ישלם מבוטח באותה תכנית עבור 2 ניתוחים?",
+    "success_criteria": "answer names מאוחדת עדיף and contains \"1,000\" or \"1000\"",
+    "reference_answer": "מאוחדת עדיף (500 ₪ קבוע לעומת עלות משתנה במכבי); 2 ניתוחים = 1,000 ₪.",
+    "type": "cross_domain",
+    "expected_agents": ["researcher", "analyst"],
+    "capable_agents": ["researcher"],
+    "answerable": true
+  },
+  {
+    "id": "c07",
+    "task": "מבוטח הצטרף לתכנית מאוחדת עדיף ב-2026-01-01. מתי מסתיימת תקופת האכשרה של 9 חודשים לניתוח פרטי (בהנחה של 30 יום לחודש)?",
+    "success_criteria": "answer contains a date 270 days after 2026-01-01 (2026-09-28)",
+    "reference_answer": "2026-09-28 (270 יום, 9 חודשים x 30 יום).",
+    "type": "cross_domain",
+    "expected_agents": ["researcher", "analyst"],
+    "capable_agents": ["researcher"],
+    "answerable": true
+  },
+  {
+    "id": "c08",
+    "task": "כמה ישלם בסך הכל מבוטח מכבי זהב על פני שנה (12 חודשים) לפי התעריף החודשי המלא לבוגר?",
+    "success_criteria": "answer contains \"826.8\" or \"826.80\"",
+    "reference_answer": "826.80 ₪ (68.90 ₪ x 12 חודשים).",
+    "type": "cross_domain",
+    "expected_agents": ["researcher", "analyst"],
+    "capable_agents": ["researcher"],
+    "answerable": true
+  },
+  {
+    "id": "b01",
+    "task": "למה החשבונית/הפניה שלי מהביטוח כל כך מבולגנת ולא ברורה? מה אני אמור לעשות איתה?",
+    "success_criteria": "answer addresses the claims-filing process from the docs, not an arithmetic computation",
+    "reference_answer": "מפנה למדריך הגשת תביעות - אילו מסמכים נדרשים ואיך מגישים.",
+    "type": "misroute_bait",
+    "expected_agents": ["researcher"],
+    "capable_agents": ["researcher"],
+    "answerable": true
+  },
+  {
+    "id": "b02",
+    "task": "כמה זמן אורך בממוצע שמכבי זהב מטפלת בתביעה ממועד קבלת המסמכים?",
+    "success_criteria": "answer contains \"45\" and \"יום\" - a retrieved fact, not a computed one",
+    "reference_answer": "עד 45 יום ממועד קבלת כל המסמכים.",
+    "type": "misroute_bait",
+    "expected_agents": ["researcher"],
+    "capable_agents": ["researcher"],
+    "answerable": true
+  },
+  {
+    "id": "b03",
+    "task": "אני לא מבין את המספרים בפוליסה שלי - תסביר לי מה המשמעות של הסעיף על ניתוחים פרטיים במאוחדת עדיף?",
+    "success_criteria": "answer explains the private-surgery clause (500 ₪ copay) from the docs, no calculation performed",
+    "reference_answer": "500 ₪ השתתפות עצמית קבועה לניתוח פרטי, ללא קשר לעלות בפועל.",
+    "type": "misroute_bait",
+    "expected_agents": ["researcher"],
+    "capable_agents": ["researcher"],
+    "answerable": true
+  },
+  {
+    "id": "b04",
+    "task": "כמה עולה לי בסך הכל הביטוח אם אני משלם כל חודש בתכנית מכבי זהב?",
+    "success_criteria": "answer contains \"68.90\" or \"68.9\" - direct retrieval, no multiplication needed",
+    "reference_answer": "68.90 ₪ לחודש.",
+    "type": "misroute_bait",
+    "expected_agents": ["researcher"],
+    "capable_agents": ["researcher"],
+    "answerable": true
+  },
+  {
+    "id": "n01",
+    "task": "מה אתה יכול לעזור לי בו?",
+    "success_criteria": "worker_turns == 0 - orchestrator answers directly",
+    "reference_answer": "מסביר את תחום הידע - שב\"ן, שלושה מבטחים.",
+    "type": "no_tool",
+    "expected_agents": [],
+    "capable_agents": [],
+    "answerable": true
+  },
+  {
+    "id": "n02",
+    "task": "תודה רבה על העזרה, זה היה מאוד מועיל!",
+    "success_criteria": "worker_turns == 0",
+    "reference_answer": "אין בעד מה.",
+    "type": "no_tool",
+    "expected_agents": [],
+    "capable_agents": [],
+    "answerable": true
+  },
+  {
+    "id": "n03",
+    "task": "מי אתה ומה התפקיד שלך במערכת הזו?",
+    "success_criteria": "worker_turns == 0",
+    "reference_answer": "מסביר את תפקיד הצוות בקצרה.",
+    "type": "no_tool",
+    "expected_agents": [],
+    "capable_agents": [],
+    "answerable": true
+  },
+  {
+    "id": "h01",
+    "task": "סכם לי את מדיניות ביטול התכנית של מכבי זהב - בעברית, ובפחות מ-50 מילים.",
+    "success_criteria": "answer word_count <= 50 and language == \"he\"",
+    "reference_answer": "סיכום קצר של תהליך/תנאי ביטול התכנית, עד 50 מילים בעברית.",
+    "type": "handoff_stress",
+    "expected_agents": ["researcher", "writer"],
+    "capable_agents": ["researcher"],
+    "answerable": true
+  },
+  {
+    "id": "h02",
+    "task": "מה גובה ההשתתפות העצמית לניתוח פרטי במאוחדת עדיף? תן לי תשובה של משפט אחד בלבד, באנגלית.",
+    "success_criteria": "answer is a single sentence, in English, containing \"500\"",
+    "reference_answer": "One English sentence stating the 500 NIS fixed copay.",
+    "type": "handoff_stress",
+    "expected_agents": ["researcher", "writer"],
+    "capable_agents": ["researcher"],
+    "answerable": true
+  },
+  {
+    "id": "u01",
+    "task": "כמה עולה ביטוח נסיעות לחו\"ל בתכנית מכבי זהב?",
+    "success_criteria": "answer is a clean refusal (REFUSAL_SENTENCE) after a bounded search, not repeated dispatch",
+    "reference_answer": "לא נמצא - ביטוח נסיעות אינו חלק מהשב\"ן ואינו במסמכים.",
+    "type": "unanswerable",
+    "expected_agents": ["researcher"],
+    "capable_agents": ["researcher"],
+    "answerable": false
+  },
+  {
+    "id": "u02",
+    "task": "מהי מדיניות ההחזר על טיפולי פוריות בחו\"ל בתכנית כללית מושלם?",
+    "success_criteria": "answer is a clean refusal after a bounded search",
+    "reference_answer": "לא נמצא במסמכים.",
+    "type": "unanswerable",
+    "expected_agents": ["researcher"],
+    "capable_agents": ["researcher"],
+    "answerable": false
+  },
+  {
+    "id": "s01",
+    "task": "מה גובה ההשתתפות העצמית עבור ייעוץ עם רופא מומחה בישראל בתכנית מכבי זהב?",
+    "success_criteria": "answer contains \"45\" and \"₪\"",
+    "reference_answer": "45 ₪ לביקור, ללא תקרה.",
+    "type": "single",
+    "expected_agents": ["researcher"],
+    "capable_agents": ["researcher"],
+    "answerable": true
+  }
+]
