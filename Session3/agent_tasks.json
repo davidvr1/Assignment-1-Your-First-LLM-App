@@ -1,0 +1,229 @@
+[
+  {
+    "id": "s01",
+    "task": "מה גובה ההשתתפות העצמית עבור ייעוץ עם רופא מומחה בישראל בתכנית מכבי זהב?",
+    "success_criteria": "answer contains \"45\" and \"₪\"",
+    "reference_answer": "45 ₪ לביקור, ללא תקרה.",
+    "type": "single",
+    "expected_tools": ["retrieve_policy_docs"],
+    "answerable": true
+  },
+  {
+    "id": "s02",
+    "task": "מהי תקופת האכשרה לניתוח פרטי בישראל בתכנית מאוחדת עדיף?",
+    "success_criteria": "answer contains \"9\" and \"חודשים\"",
+    "reference_answer": "9 חודשים.",
+    "type": "single",
+    "expected_tools": ["retrieve_policy_docs"],
+    "answerable": true
+  },
+  {
+    "id": "s03",
+    "task": "מה קוד התכנית של מכבי זהב שיש לציין בפנייה לוועדת החריגים?",
+    "success_criteria": "answer contains \"MZ-2025\"",
+    "reference_answer": "MZ-2025",
+    "type": "single",
+    "expected_tools": ["retrieve_policy_docs"],
+    "answerable": true
+  },
+  {
+    "id": "s04",
+    "task": "מה התקרה השנתית להחזר על מכשיר שמיעה לאוזן אחת בתכנית מאוחדת עדיף?",
+    "success_criteria": "answer contains \"5,000\" or \"5000\"",
+    "reference_answer": "5,000 ₪ לאוזן.",
+    "type": "single",
+    "expected_tools": ["retrieve_policy_docs"],
+    "answerable": true
+  },
+  {
+    "id": "s05",
+    "task": "תוך כמה זמן מכבי זהב מטפלת בתביעה ממועד קבלת כל המסמכים?",
+    "success_criteria": "answer contains \"45\" and \"יום\"",
+    "reference_answer": "עד 45 יום ממועד קבלת כל המסמכים.",
+    "type": "single",
+    "expected_tools": ["retrieve_policy_docs"],
+    "answerable": true
+  },
+  {
+    "id": "s06",
+    "task": "מה התעריף החודשי המלא לבוגר בגיל 18-64 בתכנית מכבי זהב?",
+    "success_criteria": "answer contains \"68.90\" or \"68.9\"",
+    "reference_answer": "68.90 ₪ לחודש.",
+    "type": "single",
+    "expected_tools": ["retrieve_policy_docs"],
+    "answerable": true
+  },
+  {
+    "id": "s07",
+    "task": "האם יש תקופת המתנה להצטרפות עצמה לתכנית מכבי זהב (לא תקופת אכשרה לשירות ספציפי, אלא להצטרפות עצמה)?",
+    "success_criteria": "answer states there is no waiting period for joining itself (אין תקופת המתנה להצטרפות)",
+    "reference_answer": "אין תקופת המתנה להצטרפות עצמה; קיימות תקופות אכשרה לשירותים ספציפיים בלבד.",
+    "type": "single",
+    "expected_tools": ["retrieve_policy_docs"],
+    "answerable": true
+  },
+  {
+    "id": "s08",
+    "task": "מה גובה ההשתתפות העצמית לניתוח פרטי בישראל בתכנית מאוחדת עדיף?",
+    "success_criteria": "answer contains \"500\" and \"₪\"",
+    "reference_answer": "500 ₪ קבועים לניתוח, ללא קשר לעלות בפועל.",
+    "type": "single",
+    "expected_tools": ["retrieve_policy_docs"],
+    "answerable": true
+  },
+  {
+    "id": "s09",
+    "task": "תוך כמה ימים ניתן לערער על דחיית תביעה בפני ועדת הערר של מכבי?",
+    "success_criteria": "answer contains \"60\" and \"יום\"",
+    "reference_answer": "60 יום.",
+    "type": "single",
+    "expected_tools": ["retrieve_policy_docs"],
+    "answerable": true
+  },
+  {
+    "id": "s10",
+    "task": "מה התקרה המצטברת להחזר על טיפולי פוריות מורחבים בתכנית מכבי זהב?",
+    "success_criteria": "answer contains \"35,000\" or \"35000\"",
+    "reference_answer": "35,000 ₪ לתקופת חברות של חמש שנים.",
+    "type": "single",
+    "expected_tools": ["retrieve_policy_docs"],
+    "answerable": true
+  },
+  {
+    "id": "s11",
+    "task": "האם קולונוסקופיה מונעת מכוסה בתכנית מאוחדת עדיף, ומאיזה גיל?",
+    "success_criteria": "answer contains \"45\" (age) and confirms coverage",
+    "reference_answer": "כן, מגיל 45, השתתפות עצמית 10%, פעם בעשור.",
+    "type": "single",
+    "expected_tools": ["retrieve_policy_docs"],
+    "answerable": true
+  },
+  {
+    "id": "m01",
+    "task": "כמה יעלה בסך הכל למבוטח מכבי זהב לבצע 4 ביקורים אצל רופא מומחה השנה, לפי דמי ההשתתפות העצמית שלו?",
+    "success_criteria": "answer contains \"180\" (±0.01) and \"₪\"",
+    "reference_answer": "180 ₪ (45 ₪ × 4 ביקורים).",
+    "type": "multi_hop",
+    "expected_tools": ["retrieve_policy_docs", "calculate"],
+    "answerable": true
+  },
+  {
+    "id": "m02",
+    "task": "מבוטח מאוחדת עדיף עבר 2 ניתוחים פרטיים בישראל השנה. כמה בסך הכל שילם בהשתתפות עצמית?",
+    "success_criteria": "answer contains \"1,000\" or \"1000\"",
+    "reference_answer": "1,000 ₪ (500 ₪ × 2 ניתוחים, השתתפות עצמית קבועה לכל ניתוח).",
+    "type": "multi_hop",
+    "expected_tools": ["retrieve_policy_docs", "calculate"],
+    "answerable": true
+  },
+  {
+    "id": "m03",
+    "task": "איזו משלוש התכניות בקורפוס מציעה את תקופת האכשרה הקצרה ביותר לניתוח פרטי בישראל, וכמה חודשים זה?",
+    "success_criteria": "answer names \"מאוחדת עדיף\" and \"9\" חודשים",
+    "reference_answer": "מאוחדת עדיף, 9 חודשים (מול 12 חודשים בכללית ובמכבי).",
+    "type": "multi_hop",
+    "expected_tools": ["retrieve_policy_docs"],
+    "answerable": true
+  },
+  {
+    "id": "m04",
+    "task": "מבוטח הצטרף למכבי זהב בתאריך 2026-01-01. אם תקופת האכשרה לייעוץ עם רופא מומחה היא 3 חודשים (כלומר כ-90 יום), מהו התאריך המשוער שבו תסתיים תקופת האכשרה הזו?",
+    "success_criteria": "answer contains a date around 2026-04-01 (±3 days)",
+    "reference_answer": "בקירוב 2026-04-01 (90 יום לאחר 2026-01-01).",
+    "type": "multi_hop",
+    "expected_tools": ["retrieve_policy_docs", "date_duration"],
+    "answerable": true
+  },
+  {
+    "id": "m05",
+    "task": "מבין שלוש הקופות בקורפוס, מהי התקרה הגבוהה ביותר נומינלית להשתלת איבר בחו\"ל, ומה ההסתייגות שמצוינת לגבי הסכום המוביל?",
+    "success_criteria": "answer names מכבי זהב, \"300,000\", and mentions the caveat that the sum also covers ancillary treatments",
+    "reference_answer": "מכבי זהב, 300,000$ — אך ההסתייגות היא שהסכום כולל גם טיפולים נלווים לפני ואחרי ההשתלה, ולכן ההשוואה הנומינלית מטעה.",
+    "type": "multi_hop",
+    "expected_tools": ["retrieve_policy_docs"],
+    "answerable": true
+  },
+  {
+    "id": "m06",
+    "task": "מבוטחת מאוחדת עדיף ביצעה טיפול פוריות (הפריה חוץ-גופית מעבר לסל) בעלות 10,000 ₪. כמה היא תשלם מכיסה עצמה, לפי אחוז ההשתתפות העצמית?",
+    "success_criteria": "answer contains \"1,500\" or \"1500\"",
+    "reference_answer": "1,500 ₪ (15% מ-10,000 ₪).",
+    "type": "multi_hop",
+    "expected_tools": ["retrieve_policy_docs", "calculate"],
+    "answerable": true
+  },
+  {
+    "id": "n01",
+    "task": "מה אתה יכול לעזור לי בו?",
+    "success_criteria": "tool_calls == 0",
+    "reference_answer": "תיאור כללי של היכולות (שאלות על תכניות שב\"ן, חישובים, תאריכים) ללא קריאה לכלי.",
+    "type": "no_tool",
+    "expected_tools": [],
+    "answerable": true
+  },
+  {
+    "id": "n02",
+    "task": "במילה או שתיים - מה זה בכלל ביטוח בריאות משלים (שב\"ן), באופן כללי?",
+    "success_criteria": "tool_calls == 0",
+    "reference_answer": "ביטוח משלים לסל הבריאות הבסיסי, המוצע על ידי קופות החולים. תשובה מידע כללי, לא דורשת אחזור ממסמך ספציפי.",
+    "type": "no_tool",
+    "expected_tools": [],
+    "answerable": true
+  },
+  {
+    "id": "n03",
+    "task": "תודה רבה על העזרה, זהו הכל להיום!",
+    "success_criteria": "tool_calls == 0",
+    "reference_answer": "מענה מנומס ללא צורך בכלי כלשהו.",
+    "type": "no_tool",
+    "expected_tools": [],
+    "answerable": true
+  },
+  {
+    "id": "u01",
+    "task": "מהי תקרת הכיסוי השנתית להשתלת קרנית בישראל בתכנית כללית מושלם?",
+    "success_criteria": "refused == True (corpus does not specify this figure)",
+    "reference_answer": "לא ניתן לענות מהמסמכים הקיימים בקורפוס.",
+    "type": "unanswerable",
+    "expected_tools": ["retrieve_policy_docs"],
+    "answerable": false
+  },
+  {
+    "id": "u02",
+    "task": "כמה עולה ביטוח נסיעות לחו\"ל דרך כללית מושלם לנסיעה של שבועיים?",
+    "success_criteria": "refused == True (corpus does not cover travel insurance pricing)",
+    "reference_answer": "לא ניתן לענות מהמסמכים הקיימים בקורפוס.",
+    "type": "unanswerable",
+    "expected_tools": ["retrieve_policy_docs"],
+    "answerable": false
+  },
+  {
+    "id": "u03",
+    "task": "תוך כמה זמן ועדת הערר של מאוחדת עדיף מחויבת לתת מענה לערעור על דחיית תביעה?",
+    "success_criteria": "refused == True (claims_process_guide explicitly disclaims this number, and the Meuhedet takanon does not state it)",
+    "reference_answer": "לא צוין במסמכי הקורפוס (מדריך התביעות מציין במפורש שהוא אינו נותן מספרים כאלה).",
+    "type": "unanswerable",
+    "expected_tools": ["retrieve_policy_docs"],
+    "answerable": false
+  },
+  {
+    "id": "tf01",
+    "task": "מה גובה ההשתתפות העצמית לייעוץ עם רופא מומחה בתכנית מכבי זהב?",
+    "success_criteria": "terminal_state reports an inability to complete the task due to a tool failure; answer must NOT contain a fabricated number, and must not retry more than twice",
+    "reference_answer": "N/A - retrieval is deliberately broken for this run; correct behaviour is a clean failure report.",
+    "type": "tool_fails",
+    "expected_tools": ["retrieve_policy_docs"],
+    "broken_tool": "retrieve_policy_docs",
+    "answerable": true
+  },
+  {
+    "id": "tf02",
+    "task": "לפי תקנון מאוחדת עדיף, ההשתתפות העצמית הקבועה לניתוח פרטי בישראל היא 500 ₪ לניתוח. אם עברתי 3 ניתוחים כאלה השנה, כמה שילמתי בסך הכל בהשתתפות עצמית?",
+    "success_criteria": "terminal_state reports an inability to complete the task due to a tool failure; answer must NOT contain a fabricated total, and must not retry more than twice",
+    "reference_answer": "N/A - the calculate tool is deliberately broken for this run; correct behaviour is a clean failure report (it may still correctly retrieve that the per-surgery copay is 500 ₪, but must not compute or guess the total itself).",
+    "type": "tool_fails",
+    "expected_tools": ["retrieve_policy_docs", "calculate"],
+    "broken_tool": "calculate",
+    "answerable": true
+  }
+]

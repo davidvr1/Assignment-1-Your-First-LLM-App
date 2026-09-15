@@ -1,0 +1,43 @@
+Warning: You are sending unauthenticated requests to the HF Hub. Please set a HF_TOKEN to enable higher rate limits and faster downloads.
+Reusing 30 exp1_v2_haiku rows from task6_exp1_results.json as the 'before' arm (no re-run).
+Loading weights:   0%|          | 0/199 [00:00<?, ?it/s]Loading weights:  71%|███████▏  | 142/199 [00:00<00:00, 1417.57it/s]Loading weights: 100%|██████████| 199/199 [00:00<00:00, 1774.50it/s]
+[exp2_v2_sonnet m01 run1] success=False state=refused tools=3 tokens=29133
+[exp2_v2_sonnet m01 run2] success=False state=refused tools=3 tokens=28963
+[exp2_v2_sonnet m01 run3] success=False state=refused tools=3 tokens=29269
+[exp2_v2_sonnet m01 run4] success=False state=refused tools=4 tokens=44251
+[exp2_v2_sonnet m01 run5] success=False state=refused tools=3 tokens=29232
+[exp2_v2_sonnet m02 run1] success=False state=refused tools=3 tokens=26516
+[exp2_v2_sonnet m02 run2] success=False state=refused tools=4 tokens=40292
+[exp2_v2_sonnet m02 run3] success=False state=refused tools=3 tokens=26098
+[exp2_v2_sonnet m02 run4] success=False state=refused tools=3 tokens=25958
+[exp2_v2_sonnet m02 run5] success=False state=refused tools=2 tokens=21900
+[exp2_v2_sonnet m03 run1] success=True state=answered tools=3 tokens=56635
+[exp2_v2_sonnet m03 run2] success=False state=refused tools=3 tokens=42848
+[exp2_v2_sonnet m03 run3] success=True state=answered tools=3 tokens=56380
+[exp2_v2_sonnet m03 run4] success=True state=answered tools=3 tokens=46715
+[exp2_v2_sonnet m03 run5] success=True state=answered tools=3 tokens=42048
+[exp2_v2_sonnet m04 run1] success=True state=answered tools=1 tokens=5572
+[exp2_v2_sonnet m04 run2] success=True state=answered tools=1 tokens=5532
+[exp2_v2_sonnet m04 run3] success=True state=answered tools=1 tokens=5555
+[exp2_v2_sonnet m04 run4] success=True state=answered tools=1 tokens=5365
+[exp2_v2_sonnet m04 run5] success=True state=answered tools=1 tokens=5485
+[exp2_v2_sonnet m05 run1] success=True state=answered tools=2 tokens=31924
+[exp2_v2_sonnet m05 run2] success=True state=answered tools=3 tokens=57835
+[exp2_v2_sonnet m05 run3] success=True state=answered tools=2 tokens=31734
+[exp2_v2_sonnet m05 run4] success=True state=answered tools=2 tokens=35263
+[exp2_v2_sonnet m05 run5] success=True state=answered tools=2 tokens=31493
+[exp2_v2_sonnet m06 run1] success=True state=answered tools=3 tokens=39989
+[exp2_v2_sonnet m06 run2] success=False state=refused tools=3 tokens=33535
+[exp2_v2_sonnet m06 run3] success=False state=refused tools=4 tokens=40569
+[exp2_v2_sonnet m06 run4] success=False state=refused tools=2 tokens=22905
+[exp2_v2_sonnet m06 run5] success=False state=refused tools=2 tokens=19802
+
+=== exp1_v2_haiku ===
+  multi_hop    success=17/30  avg_tool_calls=3.37  avg_tokens=42062  p50=12502ms  p95=14841ms  cap_breaches=0
+  TOTAL        success=17/30  avg_tool_calls=3.37  avg_tokens=42062  p50=12502ms  p95=14841ms  cap_breaches=0
+
+=== exp2_v2_sonnet ===
+  multi_hop    success=15/30  avg_tool_calls=2.53  avg_tokens=30627  p50=15136ms  p95=21605ms  cap_breaches=0
+  TOTAL        success=15/30  avg_tool_calls=2.53  avg_tokens=30627  p50=15136ms  p95=21605ms  cap_breaches=0
+
+Wrote 60 rows to task6_exp2_results.json

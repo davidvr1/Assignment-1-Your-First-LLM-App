@@ -1,0 +1,104 @@
+Warning: You are sending unauthenticated requests to the HF Hub. Please set a HF_TOKEN to enable higher rate limits and faster downloads.
+Loading weights:   0%|          | 0/199 [00:00<?, ?it/s]Loading weights:  74%|███████▍  | 147/199 [00:00<00:00, 1462.71it/s]Loading weights: 100%|██████████| 199/199 [00:00<00:00, 1688.57it/s]
+[baseline_v1_haiku m01 run1] success=False state=refused tools=5 tokens=69528
+[baseline_v1_haiku m01 run2] success=False state=refused tools=4 tokens=49430
+[baseline_v1_haiku m01 run3] success=False state=refused tools=5 tokens=63118
+[baseline_v1_haiku m01 run4] success=False state=refused tools=5 tokens=70178
+[baseline_v1_haiku m01 run5] success=False state=refused tools=5 tokens=69971
+[baseline_v1_haiku m02 run1] success=True state=answered tools=4 tokens=52458
+[baseline_v1_haiku m02 run2] success=True state=answered tools=4 tokens=52497
+[baseline_v1_haiku m02 run3] success=True state=answered tools=4 tokens=52495
+[baseline_v1_haiku m02 run4] success=True state=answered tools=4 tokens=52468
+[baseline_v1_haiku m02 run5] success=True state=answered tools=4 tokens=52460
+[baseline_v1_haiku m03 run1] success=False state=answered tools=4 tokens=118872
+[baseline_v1_haiku m03 run2] success=True state=answered tools=4 tokens=118695
+[baseline_v1_haiku m03 run3] success=True state=refused tools=3 tokens=65813
+[baseline_v1_haiku m03 run4] success=False state=answered tools=4 tokens=118634
+[baseline_v1_haiku m03 run5] success=False state=answered tools=4 tokens=118753
+[baseline_v1_haiku m04 run1] success=True state=answered tools=1 tokens=4826
+[baseline_v1_haiku m04 run2] success=True state=answered tools=1 tokens=4826
+[baseline_v1_haiku m04 run3] success=True state=answered tools=1 tokens=4826
+[baseline_v1_haiku m04 run4] success=True state=answered tools=1 tokens=4826
+[baseline_v1_haiku m04 run5] success=True state=answered tools=1 tokens=4826
+[baseline_v1_haiku m05 run1] success=True state=answered tools=2 tokens=25932
+[baseline_v1_haiku m05 run2] success=True state=answered tools=2 tokens=32790
+[baseline_v1_haiku m05 run3] success=True state=answered tools=2 tokens=25934
+[baseline_v1_haiku m05 run4] success=True state=answered tools=3 tokens=47569
+[baseline_v1_haiku m05 run5] success=True state=answered tools=2 tokens=25934
+[baseline_v1_haiku m06 run1] success=False state=cap_breached tools=7 tokens=155787
+[baseline_v1_haiku m06 run2] success=False state=cap_breached tools=7 tokens=155787
+[baseline_v1_haiku m06 run3] success=False state=cap_breached tools=7 tokens=156612
+[baseline_v1_haiku m06 run4] success=False state=cap_breached tools=7 tokens=155787
+[baseline_v1_haiku m06 run5] success=False state=cap_breached tools=7 tokens=155787
+[baseline_v1_haiku u01 run1] success=True state=refused tools=4 tokens=45115
+[baseline_v1_haiku u01 run2] success=True state=refused tools=4 tokens=45067
+[baseline_v1_haiku u01 run3] success=False state=answered tools=4 tokens=44481
+[baseline_v1_haiku u01 run4] success=True state=refused tools=3 tokens=43550
+[baseline_v1_haiku u01 run5] success=True state=refused tools=4 tokens=45017
+[baseline_v1_haiku u02 run1] success=False state=answered tools=3 tokens=29728
+[baseline_v1_haiku u02 run2] success=False state=answered tools=3 tokens=29728
+[baseline_v1_haiku u02 run3] success=False state=answered tools=3 tokens=29728
+[baseline_v1_haiku u02 run4] success=False state=answered tools=3 tokens=29728
+[baseline_v1_haiku u02 run5] success=False state=answered tools=3 tokens=29728
+[baseline_v1_haiku u03 run1] success=True state=refused tools=3 tokens=27327
+[baseline_v1_haiku u03 run2] success=True state=refused tools=3 tokens=27327
+[baseline_v1_haiku u03 run3] success=True state=refused tools=3 tokens=27327
+[baseline_v1_haiku u03 run4] success=True state=refused tools=3 tokens=27327
+[baseline_v1_haiku u03 run5] success=True state=refused tools=3 tokens=27327
+[exp1_v2_haiku m01 run1] success=False state=refused tools=4 tokens=43640
+[exp1_v2_haiku m01 run2] success=False state=refused tools=4 tokens=43640
+[exp1_v2_haiku m01 run3] success=False state=refused tools=4 tokens=43640
+[exp1_v2_haiku m01 run4] success=False state=refused tools=4 tokens=43640
+[exp1_v2_haiku m01 run5] success=False state=refused tools=4 tokens=43640
+[exp1_v2_haiku m02 run1] success=False state=refused tools=4 tokens=39657
+[exp1_v2_haiku m02 run2] success=True state=answered tools=5 tokens=70540
+[exp1_v2_haiku m02 run3] success=True state=answered tools=5 tokens=60028
+[exp1_v2_haiku m02 run4] success=False state=refused tools=4 tokens=42918
+[exp1_v2_haiku m02 run5] success=False state=refused tools=3 tokens=26330
+[exp1_v2_haiku m03 run1] success=True state=answered tools=4 tokens=68833
+[exp1_v2_haiku m03 run2] success=True state=answered tools=4 tokens=68833
+[exp1_v2_haiku m03 run3] success=True state=answered tools=4 tokens=68833
+[exp1_v2_haiku m03 run4] success=True state=answered tools=4 tokens=68833
+[exp1_v2_haiku m03 run5] success=True state=answered tools=4 tokens=68833
+[exp1_v2_haiku m04 run1] success=True state=answered tools=1 tokens=5091
+[exp1_v2_haiku m04 run2] success=True state=answered tools=1 tokens=5084
+[exp1_v2_haiku m04 run3] success=True state=answered tools=1 tokens=5047
+[exp1_v2_haiku m04 run4] success=True state=answered tools=1 tokens=5047
+[exp1_v2_haiku m04 run5] success=True state=answered tools=1 tokens=5047
+[exp1_v2_haiku m05 run1] success=True state=answered tools=3 tokens=44925
+[exp1_v2_haiku m05 run2] success=True state=answered tools=3 tokens=44925
+[exp1_v2_haiku m05 run3] success=True state=answered tools=3 tokens=44925
+[exp1_v2_haiku m05 run4] success=True state=answered tools=3 tokens=44925
+[exp1_v2_haiku m05 run5] success=True state=answered tools=3 tokens=44925
+[exp1_v2_haiku m06 run1] success=False state=refused tools=4 tokens=41378
+[exp1_v2_haiku m06 run2] success=False state=refused tools=4 tokens=41378
+[exp1_v2_haiku m06 run3] success=False state=refused tools=4 tokens=41378
+[exp1_v2_haiku m06 run4] success=False state=refused tools=4 tokens=42983
+[exp1_v2_haiku m06 run5] success=False state=refused tools=4 tokens=42970
+[exp1_v2_haiku u01 run1] success=True state=refused tools=3 tokens=28927
+[exp1_v2_haiku u01 run2] success=True state=refused tools=4 tokens=47057
+[exp1_v2_haiku u01 run3] success=True state=refused tools=3 tokens=28927
+[exp1_v2_haiku u01 run4] success=True state=refused tools=4 tokens=46974
+[exp1_v2_haiku u01 run5] success=True state=refused tools=4 tokens=44602
+[exp1_v2_haiku u02 run1] success=True state=refused tools=2 tokens=16549
+[exp1_v2_haiku u02 run2] success=True state=refused tools=2 tokens=16549
+[exp1_v2_haiku u02 run3] success=True state=refused tools=2 tokens=16549
+[exp1_v2_haiku u02 run4] success=True state=refused tools=2 tokens=16549
+[exp1_v2_haiku u02 run5] success=True state=refused tools=2 tokens=16549
+[exp1_v2_haiku u03 run1] success=True state=refused tools=4 tokens=43477
+[exp1_v2_haiku u03 run2] success=True state=refused tools=4 tokens=43477
+[exp1_v2_haiku u03 run3] success=True state=refused tools=4 tokens=43477
+[exp1_v2_haiku u03 run4] success=True state=refused tools=4 tokens=43477
+[exp1_v2_haiku u03 run5] success=True state=refused tools=4 tokens=43477
+
+=== baseline_v1_haiku ===
+  multi_hop    success=17/30  avg_tool_calls=3.80  avg_tokens=69581  p50=13164ms  p95=27166ms  cap_breaches=5
+  unanswerable success=9/15  avg_tool_calls=3.27  avg_tokens=33900  p50=13424ms  p95=14396ms  cap_breaches=0
+  TOTAL        success=26/45  avg_tool_calls=3.62  avg_tokens=57687  p50=13424ms  p95=27022ms  cap_breaches=5
+
+=== exp1_v2_haiku ===
+  multi_hop    success=17/30  avg_tool_calls=3.37  avg_tokens=42062  p50=12502ms  p95=14841ms  cap_breaches=0
+  unanswerable success=15/15  avg_tool_calls=3.20  avg_tokens=33108  p50=13744ms  p95=14870ms  cap_breaches=0
+  TOTAL        success=32/45  avg_tool_calls=3.31  avg_tokens=39077  p50=12506ms  p95=14869ms  cap_breaches=0
+
+Wrote 90 rows to task6_exp1_results.json
