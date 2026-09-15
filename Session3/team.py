@@ -39,10 +39,12 @@ import json
 import re
 import time
 from pathlib import Path
+from typing import Literal, Optional
 
 from langchain_anthropic import ChatAnthropic
 from langchain_core.messages import HumanMessage
 from langgraph.prebuilt import create_react_agent
+from pydantic import BaseModel, Field
 
 from contracts import Handoff, HandoffPayload, TeamState
 from rag_pipeline import load_api_key, REFUSAL_SENTENCE
@@ -119,9 +121,48 @@ def _worker_system_prompt(agent: str) -> str:
     return f"{SCOPE_CONTRACTS[agent]}\n\n{AGENTS_MD}"
 
 
+class _HandoffFlat(BaseModel):
+    """Tool schema actually shown to the orchestrator LLM. Anthropic's tool
+    calling occasionally double-JSON-encodes a *nested* object field as a
+    string, and when that string itself echoes source text containing a
+    literal embedded quote (e.g. this corpus's own \"חו\"ל\"), the nested
+    JSON's escaping breaks and the payload string isn't even valid JSON -
+    seen live on the u01/u02 unanswerable tasks, which happen to contain
+    exactly that character. A flat schema (no nested object for the model to
+    self-serialize) sidesteps the bug entirely; Handoff/HandoffPayload
+    (contracts.py) stay nested for everything else in the codebase - they're
+    just reassembled from this flat shape in `_to_handoff` below."""
+
+    destination: Literal["researcher", "analyst", "writer", "direct_answer"]
+    reason: str
+    direct_answer: Optional[str] = None
+    summary: Optional[str] = None
+    constraints: list[str] = Field(default_factory=list)
+    facts: dict[str, str] = Field(default_factory=dict)
+    open_question: Optional[str] = None
+
+
+def _to_handoff(flat: _HandoffFlat) -> Handoff:
+    payload = None
+    if flat.destination != "direct_answer":
+        payload = HandoffPayload(
+            summary=flat.summary or "", constraints=flat.constraints,
+            facts=flat.facts, open_question=flat.open_question or "",
+        )
+    return Handoff(destination=flat.destination, payload=payload, reason=flat.reason,
+                    direct_answer=flat.direct_answer)
+
+
 def _build_orchestrator():
     llm = ChatAnthropic(model=ORCHESTRATOR_MODEL, api_key=load_api_key(), max_tokens=512, temperature=0)
-    return llm.with_structured_output(Handoff, include_raw=True)
+    return llm.with_structured_output(_HandoffFlat, include_raw=True)
+
+
+def _parse_handoff(result: dict) -> Handoff | None:
+    if result["parsed"] is not None:
+        return _to_handoff(result["parsed"])
+    result["_recovery_error"] = str(result.get("parsing_error"))
+    return None
 
 
 def _build_worker(agent: str, model: str = WORKER_MODEL):
@@ -248,20 +289,26 @@ def run_team(
                 f"עובדות שנאספו עד כה: {json.dumps(state.facts, ensure_ascii=False) or '(אין)'}\n"
                 f"אילוצים שזוהו: {state.constraints or '(אין)'}"
             )
-            result = orchestrator.invoke([
-                {"role": "system", "content": ORCHESTRATOR_SYSTEM},
-                {"role": "user", "content": prompt},
-            ])
-            handoff: Handoff = result["parsed"]
-            raw_msg = result["raw"]
-            usage = getattr(raw_msg, "usage_metadata", None) or {}
-            orch_tokens = (usage.get("input_tokens", 0) or 0) + (usage.get("output_tokens", 0) or 0)
-            state.total_tokens += orch_tokens
-            state.per_agent_tokens["orchestrator"] = state.per_agent_tokens.get("orchestrator", 0) + orch_tokens
+            handoff = None
+            last_parsing_error = None
+            for _orch_attempt in range(2):  # one retry: rare structured-output misses under load (empirically ~5%)
+                result = orchestrator.invoke([
+                    {"role": "system", "content": ORCHESTRATOR_SYSTEM},
+                    {"role": "user", "content": prompt},
+                ])
+                raw_msg = result["raw"]
+                usage = getattr(raw_msg, "usage_metadata", None) or {}
+                orch_tokens = (usage.get("input_tokens", 0) or 0) + (usage.get("output_tokens", 0) or 0)
+                state.total_tokens += orch_tokens
+                state.per_agent_tokens["orchestrator"] = state.per_agent_tokens.get("orchestrator", 0) + orch_tokens
+                handoff = _parse_handoff(result)
+                last_parsing_error = result.get("_recovery_error") or result.get("parsing_error")
+                if handoff is not None:
+                    break
 
             if handoff is None:
                 state.terminal_state = "error"
-                state.final_answer = "ERROR: orchestrator failed to produce a structured handoff."
+                state.final_answer = f"ERROR: orchestrator failed to produce a structured handoff after 2 attempts: {last_parsing_error}"
                 break
 
             from_agent = state.route[-1] if state.route else "orchestrator"

@@ -45,7 +45,9 @@ class HandoffPayload(BaseModel):
     summary: str = Field(description="one or two sentences of what's needed, not the whole task text")
     constraints: list[str] = Field(default_factory=list, description='e.g. "language=he", "max_words=50"')
     facts: dict[str, str] = Field(default_factory=dict, description="facts already established, key -> value")
-    open_question: str = Field(description="the specific thing the receiver is being asked to do")
+    open_question: str = Field(
+        default="", description="the specific thing the receiver is being asked to do"
+    )
 
 
 class Handoff(BaseModel):
